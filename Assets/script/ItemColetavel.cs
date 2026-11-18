@@ -13,10 +13,13 @@ public class ItemColetavel : MonoBehaviour
     private Transform visual;
     private Transform brilho;
     private float defasagem;
+    private float tamanho = 1f;
 
-    public void Configurar(int indiceGlobal, int camadaId, int ordem)
+    /// <param name="escala">1 = normal; o tesouro final é maior.</param>
+    public void Configurar(int indiceGlobal, int camadaId, int ordem, float escala = 1f)
     {
         indice = indiceGlobal;
+        tamanho = escala;
         defasagem = indiceGlobal * 0.7f;
 
         // Brilho atrás do ícone
@@ -34,7 +37,7 @@ public class ItemColetavel : MonoBehaviour
         // Ícone do tesouro (filho, para flutuar sem mexer no colisor)
         GameObject objVisual = new GameObject("Icone");
         objVisual.transform.SetParent(transform, false);
-        objVisual.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
+        objVisual.transform.localScale = new Vector3(1.25f * escala, 1.25f * escala, 1f);
         SpriteRenderer desenho = objVisual.AddComponent<SpriteRenderer>();
         desenho.sprite = Recursos.Icone(indiceGlobal);
         desenho.sortingLayerID = camadaId;
@@ -43,7 +46,7 @@ public class ItemColetavel : MonoBehaviour
 
         CircleCollider2D colisor = gameObject.AddComponent<CircleCollider2D>();
         colisor.isTrigger = true;
-        colisor.radius = 0.6f;
+        colisor.radius = 0.6f * escala;
     }
 
     private void Update()
@@ -55,8 +58,8 @@ public class ItemColetavel : MonoBehaviour
 
         if (brilho != null)
         {
-            float escala = 1.9f + Mathf.Sin(t * 4f) * 0.15f;
-            brilho.localScale = new Vector3(escala, escala, 1f);
+            float tam = (1.9f + Mathf.Sin(t * 4f) * 0.15f) * tamanho;
+            brilho.localScale = new Vector3(tam, tam, 1f);
         }
     }
 

@@ -21,9 +21,9 @@ public static class Recursos
         "Pergaminho",
         "Anel Mágico",
         "Livro Antigo",
-        "Coroa Real",
         "Estrela Dourada",
-        "Coração Rubi"
+        "Coração Rubi",
+        "Coroa Real"
     };
 
     // Cor de brilho/partículas de cada tesouro
@@ -36,9 +36,9 @@ public static class Recursos
         new Color(1.00f, 0.90f, 0.60f), // Pergaminho
         new Color(0.55f, 0.80f, 1.00f), // Anel
         new Color(1.00f, 0.45f, 0.45f), // Livro
-        new Color(1.00f, 0.85f, 0.30f), // Coroa
         new Color(1.00f, 0.95f, 0.45f), // Estrela
-        new Color(1.00f, 0.40f, 0.55f)  // Coração
+        new Color(1.00f, 0.40f, 0.55f), // Coração
+        new Color(1.00f, 0.85f, 0.30f)  // Coroa
     };
 
     // Paleta dos ícones (letra -> cor). '.' = transparente
@@ -162,17 +162,6 @@ public static class Recursos
         },
         new string[]
         {
-            "y....y....y.",
-            "yy..yyy..yy.",
-            "yyy.yyy.yyy.",
-            "yyyyyyyyyyyy",
-            "yyrYyybYyryy",
-            "yyyyyyyyyyyy",
-            "YYYYYYYYYYYY",
-            "YYYYYYYYYYYY"
-        },
-        new string[]
-        {
             ".....yy.....",
             ".....yy.....",
             "....yyyy....",
@@ -196,6 +185,17 @@ public static class Recursos
             "...rrrrrR...",
             "....rrrR....",
             ".....rR....."
+        },
+        new string[]
+        {
+            "y....y....y.",
+            "yy..yyy..yy.",
+            "yyy.yyy.yyy.",
+            "yyyyyyyyyyyy",
+            "yyrYyybYyryy",
+            "yyyyyyyyyyyy",
+            "YYYYYYYYYYYY",
+            "YYYYYYYYYYYY"
         }
     };
 
@@ -206,7 +206,7 @@ public static class Recursos
     private static Sprite spriteQuadrado;
     private static Sprite spriteCirculo;
     private static Sprite spriteArredondado;
-    private static Sprite spriteVinheta;
+    private static Sprite spriteSelo;
     private static Sprite spriteSeta;
 
     /// <summary>Ícone pixel-art do tesouro (0 a 9), com contorno escuro. 14x14 px, 16 px = 1 unidade.</summary>
@@ -350,23 +350,12 @@ public static class Recursos
         return spriteArredondado;
     }
 
-    /// <summary>
-    /// Escuro com um "buraco" suave no centro (efeito de lanterna da fase 3).
-    /// Com a imagem de 4096 unidades de canvas: buraco limpo ~330, totalmente escuro depois de ~620.
-    /// </summary>
-    public static Sprite Vinheta()
+    /// <summary>Selo de pedra com uma runa vermelha, que tampa o buraco enquanto ele está bloqueado (3x3 unidades).</summary>
+    public static Sprite Selo()
     {
-        if (spriteVinheta != null) return spriteVinheta;
+        if (spriteSelo != null) return spriteSelo;
 
-        const int tam = 256;
-        const float interno = 0.161f; // em fração da metade da imagem
-        const float externo = 0.303f;
-        const float escuridaoMaxima = 0.97f;
-
-        Texture2D textura = new Texture2D(tam, tam, TextureFormat.RGBA32, false);
-        textura.filterMode = FilterMode.Bilinear;
-        textura.wrapMode = TextureWrapMode.Clamp;
-
+        const int tam = 48;
         Color32[] pixels = new Color32[tam * tam];
         float centro = (tam - 1) * 0.5f;
 
@@ -374,17 +363,39 @@ public static class Recursos
         {
             for (int x = 0; x < tam; x++)
             {
-                float d = Mathf.Sqrt((x - centro) * (x - centro) + (y - centro) * (y - centro)) / (tam * 0.5f);
-                float alfa = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((d - interno) / (externo - interno)));
-                pixels[y * tam + x] = new Color32(0, 0, 0, (byte)(alfa * escuridaoMaxima * 255f));
+                float dx = x - centro;
+                float dy = y - centro;
+                float d = Mathf.Sqrt(dx * dx + dy * dy);
+                Color32 cor = new Color32(0, 0, 0, 0);
+
+                if (d <= 23f)
+                {
+                    if (d > 21f) cor = new Color32(43, 27, 23, 255);               // contorno
+                    else if (d > 18.5f) cor = new Color32(214, 160, 60, 255);      // aro dourado
+                    else
+                    {
+                        cor = ((x / 3 + y / 3) % 2 == 0)
+                            ? new Color32(66, 58, 78, 255)
+                            : new Color32(58, 50, 70, 255);                        // pedra
+
+                        bool diagonal = Mathf.Abs(dx - dy) < 2.6f || Mathf.Abs(dx + dy) < 2.6f;
+                        if (diagonal && d < 13f) cor = new Color32(226, 70, 70, 255); // runa
+                        if (d < 3f) cor = new Color32(255, 213, 74, 255);              // centro
+                    }
+                }
+
+                pixels[y * tam + x] = cor;
             }
         }
 
+        Texture2D textura = new Texture2D(tam, tam, TextureFormat.RGBA32, false);
+        textura.filterMode = FilterMode.Point;
+        textura.wrapMode = TextureWrapMode.Clamp;
         textura.SetPixels32(pixels);
         textura.Apply();
 
-        spriteVinheta = Sprite.Create(textura, new Rect(0f, 0f, tam, tam), new Vector2(0.5f, 0.5f), 100f);
-        return spriteVinheta;
+        spriteSelo = Sprite.Create(textura, new Rect(0f, 0f, tam, tam), new Vector2(0.5f, 0.5f), 16f);
+        return spriteSelo;
     }
 
     /// <summary>Seta apontando para cima (bússola). Branca com contorno escuro, para receber cor.</summary>
@@ -449,6 +460,7 @@ public static class Recursos
     private static AudioClip somFase;
     private static AudioClip somVitoria;
     private static AudioClip somClique;
+    private static AudioClip somPortal;
 
     public static AudioClip SomColetar
     {
@@ -482,6 +494,15 @@ public static class Recursos
         }
     }
 
+    public static AudioClip SomPortal
+    {
+        get
+        {
+            if (somPortal == null) somPortal = Varredura("portal", 220f, 880f, 0.9f, 0.4f);
+            return somPortal;
+        }
+    }
+
     public static AudioClip SomClique
     {
         get
@@ -490,6 +511,28 @@ public static class Recursos
                 somClique = Sequencia("clique", new float[] { 880f }, 0.03f, 0.07f, 0.35f);
             return somClique;
         }
+    }
+
+    // Som que sobe de tom suavemente (portão abrindo / teletransporte)
+    private static AudioClip Varredura(string nome, float f0, float f1, float duracao, float volume)
+    {
+        const int taxa = 44100;
+        int total = (int)(taxa * duracao);
+        float[] dados = new float[total];
+        float fase = 0f;
+
+        for (int i = 0; i < total; i++)
+        {
+            float t = i / (float)total;
+            float freq = Mathf.Lerp(f0, f1, t * t);
+            fase += 2f * Mathf.PI * freq / taxa;
+            float envelope = Mathf.Sin(Mathf.PI * t);
+            dados[i] = (Mathf.Sin(fase) * 0.75f + Mathf.Sin(fase * 2f) * 0.15f) * envelope * volume;
+        }
+
+        AudioClip clip = AudioClip.Create(nome, total, 1, taxa, false);
+        clip.SetData(dados, 0);
+        return clip;
     }
 
     private static AudioClip Sequencia(string nome, float[] frequencias, float duracaoNota, float cauda, float volume)

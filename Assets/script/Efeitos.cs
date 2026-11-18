@@ -74,4 +74,25 @@ public static class Efeitos
             particula.vida = Random.Range(0.35f, 0.65f);
         }
     }
+
+    /// <summary>Faísca que sobe devagar (brilho dos portais e do portão).</summary>
+    public static void Brilho(Vector3 posicao, Color cor, int camadaId, int ordem)
+    {
+        GameObject go = new GameObject("Brilho");
+        go.transform.position = posicao;
+
+        float escala = Random.Range(0.8f, 1.5f);
+        go.transform.localScale = new Vector3(escala, escala, 1f);
+
+        SpriteRenderer desenho = go.AddComponent<SpriteRenderer>();
+        desenho.sprite = Recursos.Quadrado();
+        desenho.color = cor;
+        desenho.sortingLayerID = camadaId;
+        desenho.sortingOrder = ordem + 5;
+
+        ParticulaSimples particula = go.AddComponent<ParticulaSimples>();
+        particula.velocidade = new Vector2(Random.Range(-0.4f, 0.4f), Random.Range(1.2f, 2.4f));
+        particula.gravidade = 0f;
+        particula.vida = Random.Range(0.6f, 1.0f);
+    }
 }

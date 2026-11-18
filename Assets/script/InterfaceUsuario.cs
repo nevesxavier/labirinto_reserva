@@ -21,9 +21,8 @@ public class OpcaoPainel
 
 /// <summary>
 /// Interface do jogador, criada inteiramente por código (nada para montar no editor):
-///  - HUD: fase, cronômetro, 10 espaços de tesouros, bússola e dicas de controle
+///  - HUD: etapa e objetivo, cronômetro, 10 espaços de tesouros, bússola e dicas de controle
 ///  - avisos ("Moeda coletada!"), faixa de início de fase, fade de tela
-///  - escuridão (lanterna) da fase 3
 ///  - painéis de menu / pausa / fase concluída / vitória
 /// </summary>
 public class InterfaceUsuario : MonoBehaviour
@@ -75,9 +74,6 @@ public class InterfaceUsuario : MonoBehaviour
     private float fadeAlfa;
     private float fadeVelocidade;
 
-    private Image escuridao;
-    private RectTransform escuridaoRect;
-
     private GameObject painel;
     private TextMeshProUGUI painelTitulo;
     private TextMeshProUGUI painelCorpo;
@@ -127,7 +123,6 @@ public class InterfaceUsuario : MonoBehaviour
         Transform raiz = canvasGO.transform;
 
         // A ordem de criação é a ordem de desenho (o último fica por cima)
-        ConstruirEscuridao(raiz);
         ConstruirHud(raiz, itensPorFase);
         ConstruirAvisos(raiz);
         ConstruirFade(raiz);
@@ -136,7 +131,6 @@ public class InterfaceUsuario : MonoBehaviour
         painel.SetActive(false);
         banner.SetActive(false);
         textoAviso.gameObject.SetActive(false);
-        escuridao.gameObject.SetActive(false);
     }
 
     private void GarantirEventSystem()
@@ -150,30 +144,19 @@ public class InterfaceUsuario : MonoBehaviour
         go.AddComponent<StandaloneInputModule>();
     }
 
-    private void ConstruirEscuridao(Transform pai)
-    {
-        RectTransform rect = CriarRect("Escuridao", pai,
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(4096f, 4096f));
-
-        escuridao = rect.gameObject.AddComponent<Image>();
-        escuridao.sprite = Recursos.Vinheta();
-        escuridao.raycastTarget = false;
-        escuridaoRect = rect;
-    }
-
     private void ConstruirHud(Transform pai, int[] itensPorFase)
     {
         // ---- Placa da fase (canto superior esquerdo) ----
         RectTransform placaFase = CriarPlaca("PlacaFase", pai,
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -30f), new Vector2(520f, 112f));
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -30f), new Vector2(700f, 112f));
 
-        textoFase = CriarTexto(placaFase, "TextoFase", "FASE 1 / 3", 44f,
+        textoFase = CriarTexto(placaFase, "TextoFase", "ETAPA 1 / 3", 44f,
             TextAlignmentOptions.Left, CorDestaque);
         textoFase.fontStyle = FontStyles.Bold;
         Posicionar(textoFase.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 1f),
             new Vector2(28f, 0f), new Vector2(-16f, -8f));
 
-        textoNomeFase = CriarTexto(placaFase, "TextoNomeFase", "", 28f,
+        textoNomeFase = CriarTexto(placaFase, "TextoNomeFase", "", 27f,
             TextAlignmentOptions.Left, CorTexto);
         Posicionar(textoNomeFase.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.5f),
             new Vector2(28f, 10f), new Vector2(-16f, 0f));
@@ -202,7 +185,7 @@ public class InterfaceUsuario : MonoBehaviour
         Posicionar(titulo.rectTransform, new Vector2(0f, 1f), new Vector2(0.4f, 1f),
             new Vector2(24f, -56f), new Vector2(0f, -12f));
 
-        textoFaseItens = CriarTexto(placaItens, "TextoFaseItens", "Nesta fase: 0 / 3", 24f,
+        textoFaseItens = CriarTexto(placaItens, "TextoFaseItens", "Nesta etapa: 0 / 4", 24f,
             TextAlignmentOptions.Center, new Color(CorTexto.r, CorTexto.g, CorTexto.b, 0.8f));
         Posicionar(textoFaseItens.rectTransform, new Vector2(0.3f, 1f), new Vector2(0.72f, 1f),
             new Vector2(0f, -56f), new Vector2(0f, -14f));
@@ -307,7 +290,7 @@ public class InterfaceUsuario : MonoBehaviour
         bannerGrupo.blocksRaycasts = false;
         bannerGrupo.interactable = false;
 
-        bannerTitulo = CriarTexto(rectBanner, "Titulo", "FASE 1", 86f, TextAlignmentOptions.Center, CorDestaque);
+        bannerTitulo = CriarTexto(rectBanner, "Titulo", "ETAPA 1", 86f, TextAlignmentOptions.Center, CorDestaque);
         bannerTitulo.fontStyle = FontStyles.Bold;
         bannerTitulo.outlineWidth = 0.25f;
         bannerTitulo.outlineColor = new Color32(0, 0, 0, 255);
@@ -468,16 +451,16 @@ public class InterfaceUsuario : MonoBehaviour
     // ------------------------------------------------------------------
     // API pública
     // ------------------------------------------------------------------
-    public void AtualizarFase(int fase, int totalFases, string nome)
+    public void AtualizarEtapa(int etapa, int totalEtapas, string objetivo)
     {
-        textoFase.text = "FASE " + fase + " / " + totalFases;
-        textoNomeFase.text = nome;
+        textoFase.text = "ETAPA " + etapa + " / " + totalEtapas;
+        textoNomeFase.text = objetivo;
     }
 
     public void AtualizarContagem(int coletadosTotal, int totalItens, int coletadosFase, int itensDaFase)
     {
         textoContador.text = coletadosTotal + " / " + totalItens;
-        textoFaseItens.text = "Nesta fase: " + coletadosFase + " / " + itensDaFase;
+        textoFaseItens.text = "Nesta etapa: " + coletadosFase + " / " + itensDaFase;
     }
 
     /// <summary>Mostra quais tesouros já foram pegos; destaca os da fase atual.</summary>
@@ -551,28 +534,18 @@ public class InterfaceUsuario : MonoBehaviour
         bannerRestante = bannerDuracao;
     }
 
+    /// <summary>Escurece a tela até ficar preta (usado no teletransporte).</summary>
+    public void EscurecerTela(float duracao)
+    {
+        fadeVelocidade = 1f / Mathf.Max(0.05f, duracao);
+    }
+
     /// <summary>Começa com a tela preta e clareia aos poucos.</summary>
     public void ClarearTela(float duracao)
     {
         fadeAlfa = 1f;
         fade.color = new Color(0f, 0f, 0f, 1f);
         fadeVelocidade = -1f / Mathf.Max(0.05f, duracao);
-    }
-
-    public void DefinirEscuridao(bool ligada)
-    {
-        escuridao.gameObject.SetActive(ligada);
-    }
-
-    /// <summary>Mantém o "buraco de luz" da fase 3 em cima do jogador.</summary>
-    public void PosicionarEscuridao(Camera camera, Vector3 posicaoMundo)
-    {
-        if (camera == null || !escuridao.gameObject.activeSelf) return;
-
-        Vector3 tela = camera.WorldToScreenPoint(posicaoMundo);
-        Vector2 centro = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-        float fator = canvas.scaleFactor > 0f ? canvas.scaleFactor : 1f;
-        escuridaoRect.anchoredPosition = (new Vector2(tela.x, tela.y) - centro) / fator;
     }
 
     public void MostrarPainel(string titulo, string corpo, params OpcaoPainel[] opcoes)
