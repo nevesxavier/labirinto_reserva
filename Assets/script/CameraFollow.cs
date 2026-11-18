@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
@@ -22,7 +21,16 @@ public class CameraFollow : MonoBehaviour
         transform.position = Vector3.Lerp(
             transform.position,
             destino,
-            suavidade * Time.deltaTime
+            Mathf.Clamp01(suavidade * Time.deltaTime)
         );
+    }
+
+    /// <summary>Pula a câmera direto para uma posição (usado ao trocar de fase).</summary>
+    public void IrPara(Vector2 posicao)
+    {
+        transform.position = new Vector3(
+            posicao.x + deslocamento.x,
+            posicao.y + deslocamento.y,
+            deslocamento.z);
     }
 }

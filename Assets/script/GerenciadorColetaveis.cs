@@ -1,12 +1,17 @@
-
 using UnityEngine;
 using TMPro;
 
+/// <summary>
+/// LEGADO. A contagem de itens agora é feita pelo GerenciadorJogo (que também desenha
+/// a interface). Este componente continua na cena só para não gerar "script ausente":
+/// ele esconde o texto antigo "Itens: x / 10", que ficaria duplicado com o novo HUD.
+/// Você pode apagar o objeto "GerenciadorColetaveis" e o "TextoColetaveis" da cena.
+/// </summary>
 public class GerenciadorColetaveis : MonoBehaviour
 {
     public static GerenciadorColetaveis Instancia;
 
-    [Header("Configurações")]
+    [Header("Configurações (legado)")]
     public TMP_Text textoColetaveis;
 
     public int quantidadeColetada = 0;
@@ -15,26 +20,8 @@ public class GerenciadorColetaveis : MonoBehaviour
     private void Awake()
     {
         Instancia = this;
-        AtualizarTexto();
-    }
 
-    public void ColetarItem()
-    {
-        quantidadeColetada++;
-
-        AtualizarTexto();
-
-        Debug.Log("Itens coletados: " +
-            quantidadeColetada + "/" + quantidadeTotal);
-    }
-
-    private void AtualizarTexto()
-    {
         if (textoColetaveis != null)
-        {
-            textoColetaveis.text =
-                "Itens: " + quantidadeColetada +
-                " / " + quantidadeTotal;
-        }
+            textoColetaveis.gameObject.SetActive(false);
     }
 }
