@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// Vai no portão e no selo do buraco: quando o jogador bate neles enquanto
+/// Vai no portão e no selo do túnel de teletransporte: quando o jogador bate neles enquanto
 /// estão trancados, o GerenciadorJogo mostra um aviso dizendo o que falta.
-/// tipo 0 = portão | tipo 1 = buraco selado
+/// tipo 0 = portão | tipo 1 = túnel de teletransporte selado
 /// </summary>
 public class AvisoBloqueio : MonoBehaviour
 {
@@ -19,8 +19,8 @@ public class AvisoBloqueio : MonoBehaviour
 }
 
 /// <summary>
-/// Um buraco do mapa. O buraco de ENTRADA (canto inferior) começa tampado por um selo de pedra;
-/// quando é liberado, brilha e teletransporta o jogador. O buraco de SAÍDA (topo) só ganha um brilho
+/// Um túnel de teletransporte do mapa. O túnel de ENTRADA (canto inferior) começa tampado por um selo de pedra;
+/// quando é liberado, brilha e teletransporta o jogador. O túnel de SAÍDA (topo) só ganha um brilho
 /// depois que o jogador chega por ele.
 /// </summary>
 public class PortalBuraco : MonoBehaviour
@@ -61,7 +61,7 @@ public class PortalBuraco : MonoBehaviour
         desenhoBrilho.sortingOrder = ordem - 3;
         objBrilho.SetActive(false);
 
-        // Gatilho que teletransporta (só existe no buraco de entrada)
+        // Gatilho que teletransporta (só existe no túnel de entrada)
         gatilho = gameObject.AddComponent<CircleCollider2D>();
         gatilho.isTrigger = true;
         gatilho.radius = 0.9f;
@@ -85,7 +85,7 @@ public class PortalBuraco : MonoBehaviour
         }
     }
 
-    /// <summary>Tampa o buraco de novo (ao reiniciar o jogo).</summary>
+    /// <summary>Tampa o túnel de teletransporte de novo (ao reiniciar o jogo).</summary>
     public void Selar()
     {
         liberado = false;

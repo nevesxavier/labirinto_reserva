@@ -350,7 +350,7 @@ public static class Recursos
         return spriteArredondado;
     }
 
-    /// <summary>Selo de pedra com uma runa vermelha, que tampa o buraco enquanto ele está bloqueado (3x3 unidades).</summary>
+    /// <summary>Selo de pedra com uma runa vermelha, que tampa o túnel de teletransporte enquanto ele está bloqueado (3x3 unidades).</summary>
     public static Sprite Selo()
     {
         if (spriteSelo != null) return spriteSelo;

@@ -7,8 +7,8 @@ using UnityEngine.Tilemaps;
 /// Controla o jogo inteiro. Tudo acontece no mapa da cena "labirinto", em 3 etapas:
 ///
 ///   Etapa 1 - Labirinto de pedra: colete 4 tesouros para abrir o PORTÃO.
-///   Etapa 2 - Pontes do lago:     colete 5 tesouros para liberar o BURACO selado (canto inferior).
-///   Etapa 3 - O buraco teletransporta para o buraco do topo, onde está o TESOURO FINAL (vitória).
+///   Etapa 2 - Pontes do lago:     colete 5 tesouros para liberar o TÚNEL DE TELETRANSPORTE selado (canto inferior).
+///   Etapa 3 - O túnel de teletransporte leva ao túnel do topo, onde está o TESOURO FINAL (vitória).
 ///
 /// Total: 10 tesouros (4 + 5 + 1). Não precisa ser colocado na cena: ele se cria sozinho
 /// ao apertar Play, desde que exista um objeto com MovimentoPersonagem (o jogador).
@@ -21,7 +21,7 @@ public class GerenciadorJogo : MonoBehaviour
     // Configuração (altere aqui para mudar o jogo)
     // ------------------------------------------------------------------
 
-    // Quantos tesouros em cada etapa: 4 (abre o portão) + 5 (libera o buraco) + 1 (final) = 10
+    // Quantos tesouros em cada etapa: 4 (abre o portão) + 5 (libera o túnel de teletransporte) + 1 (final) = 10
     public static readonly int[] ItensPorEtapa = { 4, 5, 1 };
     private static readonly int[] PrimeiroItemDaEtapa = { 0, 4, 9 };
 
@@ -55,7 +55,7 @@ public class GerenciadorJogo : MonoBehaviour
     private static readonly Vector2 BuracoEntradaPadrao = new Vector2(-50.2f, -27.4f);
     private static readonly Vector2 BuracoSaidaPadrao = new Vector2(-85.7f, 21.1f);
 
-    // Onde o jogador chega e onde fica o tesouro final, em relação ao buraco do topo
+    // Onde o jogador chega e onde fica o tesouro final, em relação ao túnel de teletransporte do topo
     private static readonly Vector2 ChegadaRelativa = new Vector2(0f, -2.5f);
     private static readonly Vector2 ItemFinalRelativo = new Vector2(3.5f, -1.7f);
 
@@ -228,7 +228,7 @@ public class GerenciadorJogo : MonoBehaviour
             }
         }
 
-        // ...ou para o buraco liberado, quando já não há tesouros para pegar
+        // ...ou para o túnel de teletransporte liberado, quando já não há tesouros para pegar
         if (!temAlvo && EtapaAtual == 2 && !teletransportou)
         {
             alvo = posicaoEntrada;
@@ -275,7 +275,7 @@ public class GerenciadorJogo : MonoBehaviour
 
         float recorde = PlayerPrefs.GetFloat("labirinto_recorde_total", 0f);
         string corpo = "Colete os tesouros do labirinto de pedra para abrir o portão, atravesse as pontes do lago "
-            + "e libere o buraco selado: ele leva ao tesouro final!\n\n"
+            + "e libere o túnel de teletransporte selado: ele leva ao tesouro final!\n\n"
             + "Mover: W A S D ou setas   |   Correr: Shift\n"
             + "Bússola: Tab   |   Som: M   |   Pausa: Esc";
         if (recorde > 0f)
@@ -383,11 +383,11 @@ public class GerenciadorJogo : MonoBehaviour
         }
         else if (EtapaAtual == 0)
         {
-            interfaceUsuario.MostrarAviso("O buraco está selado. Abra o portão primeiro!");
+            interfaceUsuario.MostrarAviso("O túnel de teletransporte está selado. Abra o portão primeiro!");
         }
         else
         {
-            interfaceUsuario.MostrarAviso("O buraco está selado! " + TextoFaltam(ItensPorEtapa[1] - ColetadosEtapa));
+            interfaceUsuario.MostrarAviso("O túnel de teletransporte está selado! " + TextoFaltam(ItensPorEtapa[1] - ColetadosEtapa));
         }
     }
 
@@ -397,7 +397,7 @@ public class GerenciadorJogo : MonoBehaviour
         return quantidade == 1 ? "Falta 1 tesouro." : "Faltam " + quantidade + " tesouros.";
     }
 
-    /// <summary>Chamado pelo buraco liberado quando o jogador entra nele.</summary>
+    /// <summary>Chamado pelo túnel de teletransporte liberado quando o jogador entra nele.</summary>
     public void EntrarNoBuraco()
     {
         if (estado != Estado.Jogando || EtapaAtual != 2 || teletransportou) return;
@@ -405,7 +405,7 @@ public class GerenciadorJogo : MonoBehaviour
     }
 
     // ------------------------------------------------------------------
-    // Sequências: portão, buraco, teletransporte e vitória
+    // Sequências: portão, túnel de teletransporte, teletransporte e vitória
     // ------------------------------------------------------------------
     private IEnumerator AbrirPortao()
     {
@@ -466,7 +466,7 @@ public class GerenciadorJogo : MonoBehaviour
         AtualizarHud();
 
         Tocar(Recursos.SomFase);
-        interfaceUsuario.MostrarBanner("BURACO LIBERADO!", "Ele fica no canto inferior do lago");
+        interfaceUsuario.MostrarBanner("TÚNEL DE TELETRANSPORTE LIBERADO!", "Ele fica no canto inferior do lago");
         yield return new WaitForSeconds(0.8f);
 
         yield return StartCoroutine(FocarCamera(posicaoEntrada, 1.5f));
@@ -575,7 +575,7 @@ public class GerenciadorJogo : MonoBehaviour
     // Montagem do mundo
     // ------------------------------------------------------------------
 
-    // Acha o portão e os buracos que você pintou na cena
+    // Acha o portão e os túneis de teletransporte que você pintou na cena
     private void ProcurarElementosDoMapa()
     {
         Tilemap[] mapas = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
@@ -674,7 +674,7 @@ public class GerenciadorJogo : MonoBehaviour
 
         if (centros.Count < 2)
         {
-            Debug.LogWarning("GerenciadorJogo: esperava 2 buracos no tilemap \"buraco\", achei " + centros.Count + ". Usando posições padrão.");
+            Debug.LogWarning("GerenciadorJogo: esperava 2 túneis de teletransporte no tilemap \"buraco\", achei " + centros.Count + ". Usando posições padrão.");
             return;
         }
 
@@ -690,7 +690,7 @@ public class GerenciadorJogo : MonoBehaviour
         posicaoSaida = maisAlto;
     }
 
-    // Deixa o jogo no começo: portão trancado, buraco selado, só os tesouros da etapa 1
+    // Deixa o jogo no começo: portão trancado, túnel de teletransporte selado, só os tesouros da etapa 1
     private void PrepararMundo()
     {
         GarantirLimitesDoMundo();
@@ -789,8 +789,8 @@ public class GerenciadorJogo : MonoBehaviour
     private string TextoObjetivo()
     {
         if (EtapaAtual == 0) return "Colete os tesouros para abrir o portão";
-        if (EtapaAtual == 1) return "Colete os tesouros para liberar o buraco";
-        return teletransportou ? "Pegue o tesouro final" : "Entre no buraco brilhante";
+        if (EtapaAtual == 1) return "Colete os tesouros para liberar o túnel de teletransporte";
+        return teletransportou ? "Pegue o tesouro final" : "Entre no túnel de teletransporte brilhante";
     }
 
     private void AtualizarHud()
